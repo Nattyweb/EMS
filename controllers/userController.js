@@ -32,13 +32,19 @@ module.exports.signin = async (req, res, next) => {
     const lastName = user.bio.lastName;
     const welcomeMessage = `Welcome ${firstName, lastName}`;
     
+    const pendingTasksCompletionRequest = await taskCompletionModel.find({status == pending});
+    const pendingleaveRequest = await leaveRequestModel.find({status == pending});
+    
+    //concat the two pending requests
+    const pendingRequest = pendingleaveRequest + pendingTasksCompletionRequest;
+    
     
     if(user.account.status == admin) {
       const numberPresent = await userModel.find({user.attendance.status == present}).length;
       const numberAbsent = await userModel.find({user.attendance.status == absent}).length;
       const numberOnLeave = await userModel.find({user.attendance.status == onLeave}).length;
       const totalEmployees = await userModel.find().length;
-      return res.status(201).json({welcomeMessage, numberPresent, numberAbsent, numberOnLeave, totalEmployees, token});
+      return res.status(201).json({welcomeMessage, numberPresent, numberAbsent, numberOnLeave, totalEmployees, pendingRequest, token});
     }
     
     if(user.account.status == employee) {
@@ -60,6 +66,17 @@ module.exports.signin = async (req, res, next) => {
 
 module.exports.addEmployee = async (req, res) => {
   try { 
+    
+    const schema = Joi.object().keys({
+      firstName: Joi.string.required; 
+      lastName: Joi.String.required; 
+      employeeId: Joi.string.required; 
+      password: Joi.String.rquired;
+    });
+    
+    const {error} = schema.validate(req.body);
+    if(error) return res.status(400).send(error.details[0].message);
+    
     const {firstName, lastName, employeeId, password} = req.body;
     
     //hash password
@@ -76,8 +93,8 @@ module.exports.addEmployee = async (req, res) => {
     const employee = await new userModel(newEmployee);
     await employee.save();
     
-    sendRegistrationMail();
-    return res.status(201).send("registration successful");
+    await sendRegistrationMail();
+    return res.status(201).send("Employee added successfully");
     
   } catch(error) {
     return res.status(500).send(error);
@@ -103,4 +120,47 @@ module.exports.updateUser = (req, res) => {
   user.bio.address = data.address ? data.address : user.bio.address;
  
  await user.save();
+}
+
+//____________________________________
+//------------------------------------
+
+module.exports.changePassword
+
+
+
+
+
+
+//____________________________________
+//------------------------------------
+
+module.exports.attendance = async (req, res) => {
+  try {
+    
+    if(!req.body.biometricCode) return res.status(400).send("fingerprint not scanned. Try again");
+    
+    const user = userModel.findOne({bio.biometricCode === req.body.biometricCode});
+    
+    if(!user) return res.send("user not found");
+    
+    const attendance = {
+      firstName: user.bio.firstName,
+      lastName: user.bio.lastName,
+      employeeId: user.employeeDetails.employeeId;
+      date: date now,
+      timeIn: date.now,
+      timeOut: 
+      
+    }
+    
+    user.employeeDetails.attendance = present;
+    
+    const signAttendance = await new attendanceModel(attendance);
+    await signAttendance.save();
+    
+    
+  } catch(error) {
+    return res.status(500).send(error);
+  }
 }

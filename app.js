@@ -6,10 +6,11 @@ const app = exprees();
 
 const userRoutes = require('./routes/userRoutes');
 const taskRoutes = require('./routes/taskRoutes');
-const db = require('./config/db');
+const requestRoutes = require("./routes/requestRoutes");
+const db = require('./db');
 
 // configure dotenv for environment variable
-dotenv.config({ path: "./config.env" });
+dotenv.config({ path: "./.env" });
 
 //connect database
 db();
@@ -21,6 +22,7 @@ app.use(express.urlencoded({extended: false})):
 //mounting
 app.use("/api/v1/user", userRoutes)
 app.use("/api/v1/task", taskRoutes)
+app.use("/api/v1/request", request Routes)
 
 const port = process.env.PORT
 app.listen(port, () => console.log("server running"));

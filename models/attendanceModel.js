@@ -1,13 +1,14 @@
 
 const mongoose = require("mongoose")
-const {Schema} = mongoose
+const {Schema} = mongoose.schema()
 
 const attendanceSchema = new Schema({
     date: String,
     timeIn: String,
     timeOut: String,
     employeeId: String,
-    firstName: String
+    firstName: String,
+    lastName: String
   });
 
 
@@ -15,4 +16,4 @@ const attendanceSchema = new Schema({
 const Attendance = mongoose.model("Attendance", attendanceSchema);
 
 
-module.exports = Leave;
+module.exports = Attendance;

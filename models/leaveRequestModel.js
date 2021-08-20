@@ -7,7 +7,9 @@ const leaveRequestModelSchema = new Schema({
     date: Date,
     reason: String,
     startDate: String,
-    resumptionDate: String
+    resumptionDate: String,
+    resumption: String, // reaumed or yet to resume 
+    status: String //pending, approved or declined
 })
 
 

@@ -39,9 +39,56 @@ module.exports.createTask = async (req, res) => {
 }
 
 //view all tasks
-module.exports.viewAllTasks = (req, res) => {
-  try {
+module.exports.viewAllTasks = async (req, res) => {
+  try { 
+    const tasks = await taskModel.find();
+    const completedTasks = tasks.filter(task=> task.status == "completed").length;
+    tasksOnHold = tasks.filter(task => task.status == "onHold").length;
+    totalTasks = tasks.length;
     
+    return res.status(201).json({completedTasks, tasksOnHold, totalTasks, tasks})
+  } catch(error) {
+    return res.status(500).send(error);
+  }
+}
+
+//________________________
+//------------------------
+
+module.exports.viewSpecificTask = async (req, res) => {
+  try {
+    task = await taskModel.fineById(req.params.task-id);
+    return res.status(201).json(task);
+  } catch(error) {
+    return res.status(500).send(error);
+  }
+}
+
+//________________________
+//------------------------
+
+module.exports.editTask = async (req, res) => {
+  const task = taskModel.findById(req.params.task-id};
+  
+  task.name = req.body.name ? req.body.name : task.name;
+  task.description = req.body.description ? req.body.description : task.description;
+  task.startDate = req.body.startDate ? req.body.startDate : task.startDate;
+  task.completionDate = req.body.completionDate ? req.body.completionDate : task.completionDate;
+  task.one = req.body.one ? req.body.one : task.one;
+  task.two = req.body.two ? req.body.two : task two;
+  task.three = req.body.three ? req.body.three : task.three;
+  
+  await task.save();
+  return res.status(201).send("task updated")
+}
+
+module.exports.deleteTask = async (req, res) => {
+  try {
+    task = await taskModel.findByIdAndDelete(req.params.task_id);
+    
+    if(!task) return res.status(400).send("No task found");
+    
+    sendmail(task.one)
   } catch(error) {
     return res.status(500).send(error);
   }
