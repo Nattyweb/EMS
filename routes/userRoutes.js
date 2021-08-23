@@ -4,19 +4,21 @@ const router = express.Router();
 const userControllers = require("../controllers/userControllers");
 const userAuth = require("../middlewares/userAuth");
 
-//signin route
+//signin route (employees/admin)
 router.post("/signin", userControllers.signin);
 
-//add employee route
-router.post("/addemployee", userControllers.addEmployee);
+//add employee route (admin only)
+router.post("/addemployee", userAuth, adminAuth, userControllers.addEmployee);
 
-//change password router
+//change password router (employees/admin)
 router.post("/changepassword", userAuth, userControllers.changePassword)
 
-//update user details
+//update user details (employees/admin)
 router.put("/update", userAuth, userControllers.updateUser);
 
-//delete user 
-router.delete("/delete", userAuth,  userControllers.deleteUser);
+//delete user (admin only)
+router.delete("/delete", userAuth, adminAuth,  userControllers.deleteUser);
 
+//send mail (employees/admin)
+router.post("/sendmail", )
 module.exports = router

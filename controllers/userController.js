@@ -70,22 +70,36 @@ module.exports.addEmployee = async (req, res) => {
     const schema = Joi.object().keys({
       firstName: Joi.string.required; 
       lastName: Joi.String.required; 
-      employeeId: Joi.string.required; 
+      email: Joi.string.required; 
       password: Joi.String.rquired;
     });
     
     const {error} = schema.validate(req.body);
     if(error) return res.status(400).send(error.details[0].message);
     
-    const {firstName, lastName, employeeId, password} = req.body;
+    const {firstName, lastName, password} = req.body;
     
     //hash password
     const passwordHash = bcrypt.hash(password, 10)
     
+    const lastDoc = userModel.find().sort({_id: -1});
+    
+    if(!lastDoc) {
+      const employeeId = "GT-00001";
+    }
+    else {
+      const lastId = lastDoc.employeeDetails.employeeId;
+      const num = lastId.slice(4);
+      const newNum = parseInt(num) + 1;
+      const newNumString = newNum.toString();
+      const employeeId = "GT-" + newNumString; 
+    }
+
+
     let newEmployee = {
       bio.firstName: firstName,
       bio.lastName: lastName,
-      employeeDetails.EmployeeId: EmployeeId,
+      employeeDetails.employeeId: employeeId,
       accountDetails.password: passwordHash
     }
     

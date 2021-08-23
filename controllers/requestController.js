@@ -21,12 +21,27 @@ module.exports.makeLeaveRequest = async (req, res) => {
       resumptionDate: Joi.string.required
     });
     
+    const lastRequest = leaveRequestModel.find().sort({_id: -1});
+    
+    if(!lastRequest) {
+      const requestId = "LRQ-00001";
+    }
+    else {
+      const lastId = lastRequest.requestId;
+      const num = lastId.slice(5);
+      const newNum = parseInt(num) + 1;
+      const newNumString = newNum.toString();
+      const requestId = "LRQ-" + newNumString;
+    }
+    
     const {error, result} = schema.validate(req.body);
     if(error) return res.status(400).send(error.details[0].message);
     
     result.requestStatus = pending;
     
     //create new request 
+    
+    result.requestId = requestId;
     
     const newLeaveRequest = await new leaveRequestModel(result);
     await newLeaveRequest.save();
@@ -56,6 +71,14 @@ module.exports.updateLeaveRequest = async (req, res) => {
 
 //_______________________________
 //-------------------------------
+
+module.exports.createTaskCompletionRequest = async (req, res) => {
+  try {
+    const {taskId, employeeId,}
+  } catch(error) {
+    return res.status(500).send(error)
+  }
+}
 
 module.exports.manageLeaveRequest = async (req, res) => {
   try {

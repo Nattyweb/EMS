@@ -9,7 +9,19 @@ const taskModel = require("../models/taskModel");
 //create task
 module.exports.createTask = async (req, res) => {
   try { 
-    const {taskId, name, description, startDate, completionDate, one.name, one.employeeId two.name, two.employeeId three.name, three.employeeId} = req.body; 
+    const {name, description, startDate, completionDate, one.name, one.employeeId two.name, two.employeeId three.name, three.employeeId} = req.body; 
+    
+    const lastTask = taskModel.find().sort({_id: -1});
+    
+    if(!lastTask) {
+      const taskId = "TK-00001";
+    }
+    else {
+      const lastId = lastTask.taskId;
+      const num = lastId.slice(4);
+      const newNum = parseInt(num) + 1;
+      const newNumString = newNum.toString();
+      const taskId = "TK-" + newNumString; 
     
     const newTask = {
       taskId,
