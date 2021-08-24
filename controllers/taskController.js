@@ -29,13 +29,13 @@ module.exports.createTask = async (req, res) => {
       description,
       startDate,
       completionDate,
-      assignedTo.one.name: one.name,
-      assignedTo.one.employeeId: one.employeeId,
-      assignedTo.two.name: two.name,
-      assignedTo.two.employeeId: two.employeeId,
-      assignedTo.three.name: three.name,
-      assignedTo.three.employeeId: three.employeeId
-      status: 
+      assignedTo.employee1.name: employee1.name,
+      assignedTo.employee1.employeeId: employee1.employeeId,
+      assignedTo.employee2.name: employee2.name,
+      assignedTo.employee2.employeeId: employee2.employeeId,
+      assignedTo.employee3.name: employee 3.name,
+      assignedTo.employee3.employeeId: employee3.employeeId,
+      status: "pending"
     }
     
     task = await new taskModel(newTask)
@@ -86,9 +86,9 @@ module.exports.editTask = async (req, res) => {
   task.description = req.body.description ? req.body.description : task.description;
   task.startDate = req.body.startDate ? req.body.startDate : task.startDate;
   task.completionDate = req.body.completionDate ? req.body.completionDate : task.completionDate;
-  task.one = req.body.one ? req.body.one : task.one;
-  task.two = req.body.two ? req.body.two : task two;
-  task.three = req.body.three ? req.body.three : task.three;
+  task.assignedTo.employee1 = req.body.assignedTo.employee1 ? req.body.assignedTo.employee1 : task.assignedTo.employee1;
+  task.assignedTo.employee2 = req.body.assignedTo.employee2 ? req.body.assignedTo.employee2: task.assignedTo.employee2;
+  task.assignedTo.employee3 = req.body.assignedTo.employee3 ? req.body.employee3: task.assignedTo.employee3;
   
   await task.save();
   return res.status(201).send("task updated")
@@ -103,5 +103,18 @@ module.exports.deleteTask = async (req, res) => {
     sendmail(task.one)
   } catch(error) {
     return res.status(500).send(error);
+  }
+}
+
+//________________________
+//------------------------
+module.exports.myTasks = async (req, res) => {
+  try {
+    
+    const myTasks = await taskModel.find({assignedTo.employee1.employeeId: req.user.employeeId});
+    
+    return res.status(201).json(myTasks);
+  } catch(error) {
+    return res.status(500).send(error)
   }
 }

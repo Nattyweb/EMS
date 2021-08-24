@@ -10,7 +10,7 @@ const jwt = require("jsonwebtoken");
 //_________________________________________
 
 //sign in
-module.exports.signin = async (req, res, next) => {
+module.exports.signin = async (req, res,) => {
   try {
     const {email, password} = req.body;
     
@@ -32,22 +32,28 @@ module.exports.signin = async (req, res, next) => {
     const lastName = user.bio.lastName;
     const welcomeMessage = `Welcome ${firstName, lastName}`;
     
-    const pendingTasksCompletionRequest = await taskCompletionModel.find({status == pending});
-    const pendingleaveRequest = await leaveRequestModel.find({status == pending});
+    const pendingTasksCompletionRequest = await taskCompletionModel.find({status: pending});
+    const pendingleaveRequest = await leaveRequestModel.find({status: pending});
     
     //concat the two pending requests
-    const pendingRequest = pendingleaveRequest + pendingTasksCompletionRequest;
+    const pendingRequest = { 
+      ... pendingleaveRequest, 
+      ... pendingTasksCompletionRequest 
+    }
     
     
-    if(user.account.status == admin) {
-      const numberPresent = await userModel.find({user.attendance.status == present}).length;
-      const numberAbsent = await userModel.find({user.attendance.status == absent}).length;
-      const numberOnLeave = await userModel.find({user.attendance.status == onLeave}).length;
-      const totalEmployees = await userModel.find().length;
+    if(user.account.status === admin) { 
+      
+      const users = userModel.find();
+      const numberPresent = users.filter(user => user.attendance.status: "present").length;
+      const numberAbsent = users.filter(user.attendance.status: "absent").length;
+      const numberOnLeave = users.filter(user.attendance.status: "onLeave").length;
+      const totalEmployees = users.length;
+      
       return res.status(201).json({welcomeMessage, numberPresent, numberAbsent, numberOnLeave, totalEmployees, pendingRequest, token});
     }
     
-    if(user.account.status == employee) {
+    if(user.account.status === employee) {
       const userBio = user.bio;
       const userContacts = user.Contacts;
       const userPaymentDetails = user.paymentDetails;
@@ -68,16 +74,16 @@ module.exports.addEmployee = async (req, res) => {
   try { 
     
     const schema = Joi.object().keys({
-      firstName: Joi.string.required; 
-      lastName: Joi.String.required; 
-      email: Joi.string.required; 
-      password: Joi.String.rquired;
+      firstName: Joi.string().required(); 
+      lastName: Joi.String().required(); 
+      email: Joi.string().required(); 
+      password: Joi.String().rquired();
     });
     
     const {error} = schema.validate(req.body);
     if(error) return res.status(400).send(error.details[0].message);
     
-    const {firstName, lastName, password} = req.body;
+    const {firstName, lastName, email, password} = req.body;
     
     //hash password
     const passwordHash = bcrypt.hash(password, 10)
@@ -99,6 +105,7 @@ module.exports.addEmployee = async (req, res) => {
     let newEmployee = {
       bio.firstName: firstName,
       bio.lastName: lastName,
+      contacts.email: email,
       employeeDetails.employeeId: employeeId,
       accountDetails.password: passwordHash
     }
@@ -107,7 +114,13 @@ module.exports.addEmployee = async (req, res) => {
     const employee = await new userModel(newEmployee);
     await employee.save();
     
-    await sendRegistrationMail();
+    let receiver = email;
+    const subject =  "EMPLOYEE ACCOUNT CREATION";
+    const message = `An account has been created for you with the following login details: email: ${email}, password: ${password}. Login to update your details`;
+    
+    
+    
+    await sendMail(receiver, subject, message);
     return res.status(201).send("Employee added successfully");
     
   } catch(error) {
@@ -139,7 +152,29 @@ module.exports.updateUser = (req, res) => {
 //____________________________________
 //------------------------------------
 
-module.exports.changePassword
+module.exports.changePassword = async (req, res) => {
+  try {
+    
+    const {newPassword, confirmNewPassword } = req.body;
+    
+    if(!newPassword || !confirmNewPassword || password != confirmNewPassword) {
+      return res.status(400).send("error")
+    };
+    
+    //hash new passwordHash 
+    newPasswordHash = bcrypt.hash(newPassword, 10)
+    
+.findById(req.user._id);
+    
+    user.accountDetails.password = newPasswordHash.
+    
+    
+    user.accountDetails.pass
+    
+  } catch(error) {
+    return res.status(500).send(error);
+  }
+}
 
 
 
@@ -154,7 +189,7 @@ module.exports.attendance = async (req, res) => {
     
     if(!req.body.biometricCode) return res.status(400).send("fingerprint not scanned. Try again");
     
-    const user = userModel.findOne({bio.biometricCode === req.body.biometricCode});
+    const user = userModel.findOne({bio.biometricCode: req.body.biometricCode});
     
     if(!user) return res.send("user not found");
     

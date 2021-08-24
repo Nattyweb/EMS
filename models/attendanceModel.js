@@ -3,7 +3,7 @@ const mongoose = require("mongoose")
 const {Schema} = mongoose.schema()
 
 const attendanceSchema = new Schema({
-    date: String,
+    date: Date,
     timeIn: String,
     timeOut: String,
     employeeId: String,

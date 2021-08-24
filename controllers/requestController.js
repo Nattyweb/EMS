@@ -72,14 +72,6 @@ module.exports.updateLeaveRequest = async (req, res) => {
 //_______________________________
 //-------------------------------
 
-module.exports.createTaskCompletionRequest = async (req, res) => {
-  try {
-    const {taskId, employeeId,}
-  } catch(error) {
-    return res.status(500).send(error)
-  }
-}
-
 module.exports.manageLeaveRequest = async (req, res) => {
   try {
     const request = leaveRequestModel.findById(req.params.request-id);
@@ -137,7 +129,7 @@ module.exports.manageTaskCompletionRequest = async (req, res) => {
     request.status = req.body.status;
     
     if(req.body.status == approved) { 
-      const task = await taskmodel.findById(req.body.task-id);
+      const task = await taskmodel.findOne({taskId: req.params.task-id});
       //approve request 
       task.status = "completed";
       task.comment = req.body.comment
@@ -152,5 +144,27 @@ module.exports.manageTaskCompletionRequest = async (req, res) => {
     
   } catch(error) {
     return res.status(500).send(error);
+  }
+}
+
+//_______________________________
+/--------------------------------
+
+
+module.exports.myRequests = async (req, res) => {
+  try {
+    
+    const myTaskCompletionRequests = await taskCompletionRequestModel.find({employeeId: req.params.employee-id});
+    
+    const myLeaveRequests = await leaveRequestModel.find({employeeId: req.params.employee-id})
+    
+    const myRequests = {
+      ... myTaskCompletionRequests,
+      ... myLeaveRequests
+    }
+    
+    return res.status(201).json(myRequests)
+  } catch(error) {
+    return res.status(500).send(error)
   }
 }
